@@ -2526,7 +2526,7 @@ namespace TKSCHEDULEUOFDY
                                     AND REPLACE(TC001+TC002,',','')  IN
                                     (
                                         SELECT REPLACE(TC001+TC002,' ' ,'')
-                                        FROM [192.168.1.105].[TK].dbo.PURTC
+                                        FROM [192.168.1.105].[DY].dbo.PURTC
                                         WHERE TC014 IN ('N')
                                     )                            
 
@@ -2594,10 +2594,10 @@ namespace TKSCHEDULEUOFDY
             StringBuilder queryString = new StringBuilder();
 
             queryString.AppendFormat(@"   
-                                       UPDATE [TK].dbo.PURTC SET TC014='Y' WHERE TC001=@TC001 AND TC002=@TC002 
-                                       UPDATE [TK].dbo.PURTD SET TD018='Y' WHERE TD001=@TC001 AND TD002=@TC002 
+                                       UPDATE [DY].dbo.PURTC SET TC014='Y' WHERE TC001=@TC001 AND TC002=@TC002 
+                                       UPDATE [DY].dbo.PURTD SET TD018='Y' WHERE TD001=@TC001 AND TD002=@TC002 
 
-                                       UPDATE [TK].dbo.PURTC SET UDF02=@UDF02 WHERE TC001=@TC001 AND TC002=@TC002 
+                                       UPDATE [DY].dbo.PURTC SET UDF02=@UDF02 WHERE TC001=@TC001 AND TC002=@TC002 
 
                                         ");
 
@@ -2731,7 +2731,7 @@ namespace TKSCHEDULEUOFDY
                                     AND REPLACE(TE001+TE002+TE003,',','')  IN
                                     (
                                         SELECT REPLACE(TE001+TE002+TE003,' ' ,'')
-                                        FROM[192.168.1.105].[TK].dbo.PURTE
+                                        FROM[192.168.1.105].[DY].dbo.PURTE
                                     WHERE TE017 IN('N')
                                     )                            
                     
@@ -2809,7 +2809,7 @@ namespace TKSCHEDULEUOFDY
             queryString.AppendFormat(@"   
                                        --INSERT PURTD
 
-                                        INSERT INTO [TK].dbo.PURTD
+                                        INSERT INTO [DY].dbo.PURTD
                                         (
                                         COMPANY,CREATOR,USR_GROUP,CREATE_DATE,FLAG,CREATE_TIME,MODI_TIME,TRANS_TYPE,TRANS_NAME,DataGroup
                                         ,TD001
@@ -2858,13 +2858,13 @@ namespace TKSCHEDULEUOFDY
                                         ,TF019
                                         ,TF020
                                         ,TF021
-                                        FROM [TK].dbo.PURTF
+                                        FROM [DY].dbo.PURTF
                                         WHERE TF001=@TF001 AND TF002=@TF002 AND TF003=@TF003
-                                        AND TF001+TF002+TF104 NOT IN (SELECT TD001+TD002+TD003  FROM [TK].dbo.PURTD WHERE TD001=@TD001 AND TD002=@TD002)
+                                        AND TF001+TF002+TF104 NOT IN (SELECT TD001+TD002+TD003  FROM [DY].dbo.PURTD WHERE TD001=@TD001 AND TD002=@TD002)
 
                                         --UPDATE PURTD
 
-                                        UPDATE [TK].dbo.PURTD
+                                        UPDATE [DY].dbo.PURTD
                                         SET 
                                         TD004=TF005
                                         ,TD005=TF006
@@ -2882,14 +2882,14 @@ namespace TKSCHEDULEUOFDY
                                         ,TD020=TF019
                                         ,TD022=TF020
                                         ,TD025=TF021
-                                        FROM [TK].dbo.PURTF
+                                        FROM [DY].dbo.PURTF
                                         WHERE TD001=@TD001 AND TD002=@TD002 AND TD003=TF104
                                         AND TF001=@TF001 AND TF002=@TF002 AND TF003=@TF003
 
 
                                         --UPDATE PURTC
 
-                                        UPDATE [TK].dbo.PURTC
+                                        UPDATE [DY].dbo.PURTC
                                         SET 
                                         TC004=TE005
                                         ,TC005=TE007
@@ -2916,24 +2916,24 @@ namespace TKSCHEDULEUOFDY
                                         ,TC038=TE046
                                         ,TC039=TE047
                                         ,TC040=TE048
-                                        FROM [TK].dbo.PURTE
+                                        FROM [DY].dbo.PURTE
                                         WHERE TC001=@TC001 AND TC002=@TC002
                                         AND TE001=@TE001 AND TE002=@TE002 AND TE003=@TE003
 
                                         --更新PURTC的未稅、稅額、總金額、數量
-                                        UPDATE [TK].dbo.PURTC
-                                        SET TC019=(CASE WHEN TC018='1' THEN (SELECT ISNULL(ISNULL(ROUND(SUM(TD011)/(1+TC026),0),0),0) FROM [TK].dbo.PURTD WHERE TD001+TD002=TC001+TC002) 
-                                                                            ELSE CASE WHEN TC018='2' THEN (SELECT ISNULL(SUM(TD011),0) FROM [TK].dbo.PURTD WHERE TD001+TD002=TC001+TC002) 
-                                                                            ELSE CASE WHEN TC018='3' THEN (SELECT ISNULL(SUM(TD011),0) FROM [TK].dbo.PURTD WHERE TD001+TD002=TC001+TC002) 
-                                                                            ELSE CASE WHEN TC018='4' THEN (SELECT ISNULL(SUM(TD011),0) FROM [TK].dbo.PURTD WHERE TD001+TD002=TC001+TC002) 
-                                                                            ELSE CASE WHEN TC018='9' THEN (SELECT ISNULL(SUM(TD011),0) FROM [TK].dbo.PURTD WHERE TD001+TD002=TC001+TC002)  
+                                        UPDATE [DY].dbo.PURTC
+                                        SET TC019=(CASE WHEN TC018='1' THEN (SELECT ISNULL(ISNULL(ROUND(SUM(TD011)/(1+TC026),0),0),0) FROM [DY].dbo.PURTD WHERE TD001+TD002=TC001+TC002) 
+                                                                            ELSE CASE WHEN TC018='2' THEN (SELECT ISNULL(SUM(TD011),0) FROM [DY].dbo.PURTD WHERE TD001+TD002=TC001+TC002) 
+                                                                            ELSE CASE WHEN TC018='3' THEN (SELECT ISNULL(SUM(TD011),0) FROM [DY].dbo.PURTD WHERE TD001+TD002=TC001+TC002) 
+                                                                            ELSE CASE WHEN TC018='4' THEN (SELECT ISNULL(SUM(TD011),0) FROM [DY].dbo.PURTD WHERE TD001+TD002=TC001+TC002) 
+                                                                            ELSE CASE WHEN TC018='9' THEN (SELECT ISNULL(SUM(TD011),0) FROM [DY].dbo.PURTD WHERE TD001+TD002=TC001+TC002)  
                                                                             END
                                                                             END
                                                                             END 
                                                                             END
                                                                             END)
-                                        ,TC020=(CASE WHEN TC018='1' THEN (SELECT (ISNULL(SUM(TD011),0)-ISNULL(ROUND(SUM(TD011)/(1+TC026),0),0)) FROM [TK].dbo.PURTD WHERE TD001+TD002=TC001+TC002) 
-                                                                            ELSE CASE WHEN TC018='2' THEN (SELECT ISNULL(ROUND(SUM(TD011)*TC026,0),0) FROM [TK].dbo.PURTD WHERE TD001+TD002=TC001+TC002) 
+                                        ,TC020=(CASE WHEN TC018='1' THEN (SELECT (ISNULL(SUM(TD011),0)-ISNULL(ROUND(SUM(TD011)/(1+TC026),0),0)) FROM [DY].dbo.PURTD WHERE TD001+TD002=TC001+TC002) 
+                                                                            ELSE CASE WHEN TC018='2' THEN (SELECT ISNULL(ROUND(SUM(TD011)*TC026,0),0) FROM [DY].dbo.PURTD WHERE TD001+TD002=TC001+TC002) 
                                                                             ELSE CASE WHEN TC018='3' THEN 0 
                                                                             ELSE CASE WHEN TC018='4' THEN 0
                                                                             ELSE CASE WHEN TC018='9' THEN 0 
@@ -2942,40 +2942,40 @@ namespace TKSCHEDULEUOFDY
                                                                             END 
                                                                             END
                                                                             END)
-                                        ,TC023=(SELECT ISNULL(SUM(TD008),0) FROM [TK].dbo.PURTD WHERE TD001=TC001 AND TD002=TC002)
+                                        ,TC023=(SELECT ISNULL(SUM(TD008),0) FROM [DY].dbo.PURTD WHERE TD001=TC001 AND TD002=TC002)
                                         WHERE TC001=@TC001 AND TC002=@TC002
 
                                         --如果變更單整理指定結案，原PURTC也指定結案
 
-                                        UPDATE [TK].dbo.PURTD
+                                        UPDATE [DY].dbo.PURTD
                                         SET TD016='y'
-                                        FROM [TK].dbo.PURTE
+                                        FROM [DY].dbo.PURTE
                                         WHERE TD001=@TD001 AND TD002=@TD002
                                         AND TE012='Y'                                    
                                         AND TE001=@TE001 AND TE002=@TE002 AND TE003=@TE003
 
                                         --如果變更單單身指定結案，原PURTD也指定結案
-                                        UPDATE [TK].dbo.PURTD
+                                        UPDATE [DY].dbo.PURTD
                                         SET TD016='y'
-                                        FROM [TK].dbo.PURTF
+                                        FROM [DY].dbo.PURTF
                                         WHERE   TD001=@TD001 AND TD002=@TD002
                                         AND TF001=TD001 AND TF002=TD002 AND TF104=TD003
                                         AND TF014='Y'                                       
                                         AND TF001=@TF001 AND TF002=@TF002 AND TF003=@TF003
 
                                         --更新PURTE
-                                        UPDATE [TK].dbo.PURTE
+                                        UPDATE [DY].dbo.PURTE
                                         SET TE017='Y'
                                         ,UDF02=@UDF02
                                         WHERE TE001=@TE001 AND TE002=@TE002 AND TE003=@TE003
 
                                         --更新PURTF
-                                        UPDATE [TK].dbo.PURTF
+                                        UPDATE [DY].dbo.PURTF
                                         SET TF016='Y'
                                         WHERE TF001=@TF001 AND TF002=@TF002 AND TF003=@TF003
 
                                         --更新PURTC
-                                        UPDATE [TK].dbo.PURTC
+                                        UPDATE [DY].dbo.PURTC
                                         SET UDF03=@UDF03
                                         WHERE TC001=@TC001 AND TC002=@TC002
                                       
@@ -3022,7 +3022,7 @@ namespace TKSCHEDULEUOFDY
 
         #endregion
 
-            #region BUTTON
+        #region BUTTON
         private void button15_Click(object sender, EventArgs e)
         {
             //DY採購單>轉入UOF簽核
