@@ -151,7 +151,7 @@ namespace TKSCHEDULEUOFDY
             string DEPNAME = DTUPFDEP.Rows[0]["DEPNAME"].ToString();
             string DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
 
-            string EXTERNAL_FORM_NBR = DT.Rows[0]["TC001"].ToString().Trim() + DT.Rows[0]["TC002"].ToString().Trim();
+            string EXTERNAL_FORM_NBR = "DY-"+DT.Rows[0]["TC001"].ToString().Trim() + DT.Rows[0]["TC002"].ToString().Trim();
 
             int rowscounts = 0;
 
@@ -1343,7 +1343,7 @@ namespace TKSCHEDULEUOFDY
             string DEPNAME = DTUPFDEP.Rows[0]["DEPNAME"].ToString();
             string DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
 
-            string EXTERNAL_FORM_NBR = DT.Rows[0]["TE001"].ToString().Trim() + DT.Rows[0]["TE002"].ToString().Trim() + DT.Rows[0]["TE003"].ToString().Trim();
+            string EXTERNAL_FORM_NBR = "DY-" + DT.Rows[0]["TE001"].ToString().Trim() + DT.Rows[0]["TE002"].ToString().Trim() + DT.Rows[0]["TE003"].ToString().Trim();
 
             int rowscounts = 0;
 
@@ -1352,7 +1352,7 @@ namespace TKSCHEDULEUOFDY
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string PURTEID = SEARCHFORM_UOF_VERSION_ID("PUR50.採購變更單");
+            string PURTEID = SEARCHFORM_UOF_VERSION_ID("PUR50.採購變更單-大潁");
 
             if (!string.IsNullOrEmpty(PURTEID))
             {
