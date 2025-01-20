@@ -2430,9 +2430,599 @@ namespace TKSCHEDULEUOFDY
                 sqlConn.Close();
             }
         }
+        public void UPDATE_PURTC_PURTD()
+        {
+            string DOC_NBR = "";
+            string ACCOUNT = "";
+            string MODIFIER = null;
+
+            string FORMID;
+            string TC001;
+            string TC002;
+
+            string ISCLOSE;
+
+            DataTable DT = FIND_UOF_PURTC_PORTD();
+
+            if (DT != null && DT.Rows.Count >= 1)
+            {
+                foreach (DataRow DR in DT.Rows)
+                {
+                    TC001 = DR["TC001"].ToString().Trim();
+                    TC002 = DR["TC002"].ToString().Trim();
+
+                    DOC_NBR = DR["DOC_NBR"].ToString().Trim();
+                    ACCOUNT = DR["ACCOUNT"].ToString().Trim();
+                    MODIFIER = DR["ACCOUNT"].ToString().Trim();
+                    FORMID = DR["DOC_NBR"].ToString().Trim();
+
+                    UPDATE_PURTC_PORTD_EXE(TC001, TC002, FORMID, MODIFIER);
+                }
+            }
+        }
+
+        public DataTable FIND_UOF_PURTC_PORTD()
+        {
+
+            SqlConnection sqlConn = new SqlConnection();
+            SqlCommand sqlComm = new SqlCommand();
+            StringBuilder sbSql = new StringBuilder();
+            StringBuilder sbSqlQuery = new StringBuilder();
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(@"  
+                                    WITH TEMP AS (
+                                    SELECT 
+                                        [FORM_NAME],
+                                        [DOC_NBR],
+	                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TC001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TC001,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TC002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TC002,
+                                        TASK_ID,
+                                        TASK_STATUS,
+                                        TASK_RESULT
+                                        FROM [UOF].[dbo].TB_WKF_TASK
+                                        LEFT JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                        LEFT JOIN [UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                        WHERE[FORM_NAME] = 'PUR40.採購單'
+                                        AND TASK_STATUS = '2'
+                                        AND TASK_RESULT = '0'
+
+                                    )
+                                    SELECT TEMP.*,
+                                    (
+                                        SELECT TOP 1 [TB_EB_USER].ACCOUNT
+                                        FROM [UOF].[dbo].TB_WKF_TASK_NODE
+                                        LEFT JOIN [UOF].[dbo].[TB_EB_USER]
+                                            ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+
+                                        WHERE 1=1
+                                        AND ISNULL([TB_WKF_TASK_NODE].ACTUAL_SIGNER,'')<>''
+	                                    AND [TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                        ORDER BY FINISH_TIME DESC
+                                    ) AS ACCOUNT
+                                    FROM TEMP
+                                    WHERE 1=1
+                                    AND REPLACE(TC001+TC002,',','')  IN
+                                    (
+                                        SELECT REPLACE(TC001+TC002,' ' ,'')
+                                        FROM [192.168.1.105].[TK].dbo.PURTC
+                                        WHERE TC014 IN ('N')
+                                    )                            
+
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                // 設置查詢的超時時間，以秒為單位
+                adapter1.SelectCommand.CommandTimeout = TIMEOUT_LIMITS;
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public void UPDATE_PURTC_PORTD_EXE(string TC001, string TC002, string FORMID, string MODIFIER)
+        {
+            SqlConnection sqlConn = new SqlConnection();
+            SqlCommand sqlComm = new SqlCommand();
+            StringBuilder sbSql = new StringBuilder();
+            StringBuilder sbSqlQuery = new StringBuilder();
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            string COMPANY = "TK";
+            string MODI_DATE = DateTime.Now.ToString("yyyyMMdd");
+            string MODI_TIME = DateTime.Now.ToString("HH:mm:dd");
+
+
+            //20210902密
+            Class1 TKID = new Class1();//用new 建立類別實體
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+
+            //資料庫使用者密碼解密
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            String connectionString;
+            sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+            StringBuilder queryString = new StringBuilder();
+
+            queryString.AppendFormat(@"   
+                                       UPDATE [TK].dbo.PURTC SET TC014='Y' WHERE TC001=@TC001 AND TC002=@TC002 
+                                       UPDATE [TK].dbo.PURTD SET TD018='Y' WHERE TD001=@TC001 AND TD002=@TC002 
+
+                                       UPDATE [TK].dbo.PURTC SET UDF02=@UDF02 WHERE TC001=@TC001 AND TC002=@TC002 
+
+                                        ");
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(sqlConn.ConnectionString))
+                {
+
+                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+                    command.Parameters.Add("@TC001", SqlDbType.NVarChar).Value = TC001;
+                    command.Parameters.Add("@TC002", SqlDbType.NVarChar).Value = TC002;
+                    //command.Parameters.Add("@TA014", SqlDbType.NVarChar).Value = MODIFIER;
+                    command.Parameters.Add("@UDF02", SqlDbType.NVarChar).Value = FORMID;
+
+
+                    command.Connection.Open();
+
+                    int count = command.ExecuteNonQuery();
+
+                    connection.Close();
+                    connection.Dispose();
+
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
+        }
+
+        public void UPDATE_PURTE_PURTF()
+        {
+            string DOC_NBR = "";
+            string ACCOUNT = "";
+            string MODIFIER = null;
+
+            string FORMID;
+            string TE001;
+            string TE002;
+            string TE003;
+
+            string ISCLOSE;
+
+            DataTable DT = FIND_UOF_PURTE_PORTF();
+
+            if (DT != null && DT.Rows.Count >= 1)
+            {
+                foreach (DataRow DR in DT.Rows)
+                {
+                    TE001 = DR["TE001"].ToString().Trim();
+                    TE002 = DR["TE002"].ToString().Trim();
+                    TE003 = DR["TE003"].ToString().Trim();
+
+                    DOC_NBR = DR["DOC_NBR"].ToString().Trim();
+                    ACCOUNT = DR["NOWACCOUNT"].ToString().Trim();
+                    MODIFIER = DR["NOWACCOUNT"].ToString().Trim();
+                    FORMID = DR["DOC_NBR"].ToString().Trim();
+
+                    UPDATE_PURTE_PORTF_EXE(TE001, TE002, TE003, FORMID, MODIFIER);
+                }
+            }
+        }
+
+        public DataTable FIND_UOF_PURTE_PORTF()
+        {
+
+            SqlConnection sqlConn = new SqlConnection();
+            SqlCommand sqlComm = new SqlCommand();
+            StringBuilder sbSql = new StringBuilder();
+            StringBuilder sbSqlQuery = new StringBuilder();
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(@"                                      
+                                    WITH TEMP AS (
+                                    SELECT 
+                                        [FORM_NAME],
+                                        [DOC_NBR],
+	                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TE001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TE001,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TE002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TE002,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TE003""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TE003,
+                                        TASK_ID,
+                                        TASK_STATUS,
+                                        TASK_RESULT
+                                        FROM[UOF].[dbo].TB_WKF_TASK
+                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                        WHERE[FORM_NAME] = 'PUR50.採購變更單'
+                                        AND TASK_STATUS = '2'
+                                        AND TASK_RESULT = '0'
+
+                                    )
+                                    SELECT TEMP.*,
+                                    (
+                                        SELECT TOP 1[TB_EB_USER].ACCOUNT
+                                        FROM[UOF].[dbo].TB_WKF_TASK_NODE
+                                        LEFT JOIN[UOF].[dbo].[TB_EB_USER]
+                                            ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+
+                                    WHERE 1=1
+                                        AND ISNULL([TB_WKF_TASK_NODE].ACTUAL_SIGNER,'')<>''
+	                                    AND[TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                       ORDER BY FINISH_TIME DESC
+                                    ) AS NOWACCOUNT
+                                    FROM TEMP
+                                    WHERE 1=1
+                                    AND REPLACE(TE001+TE002+TE003,',','')  IN
+                                    (
+                                        SELECT REPLACE(TE001+TE002+TE003,' ' ,'')
+                                        FROM[192.168.1.105].[TK].dbo.PURTE
+                                    WHERE TE017 IN('N')
+                                    )                            
+                    
+
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                // 設置查詢的超時時間，以秒為單位
+                adapter1.SelectCommand.CommandTimeout = TIMEOUT_LIMITS;
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public void UPDATE_PURTE_PORTF_EXE(string TE001, string TE002, string TE003, string FORMID, string MODIFIER)
+        {
+            SqlConnection sqlConn = new SqlConnection();
+            SqlCommand sqlComm = new SqlCommand();
+            StringBuilder sbSql = new StringBuilder();
+            StringBuilder sbSqlQuery = new StringBuilder();
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            string TC001 = TE001;
+            string TC002 = TE002;
+            string TD001 = TE001;
+            string TD002 = TE002;
+            string TF001 = TE001;
+            string TF002 = TE002;
+            string TF003 = TE003;
+
+            string COMPANY = "TK";
+            string MODI_DATE = DateTime.Now.ToString("yyyyMMdd");
+            string MODI_TIME = DateTime.Now.ToString("HH:mm:dd");
+
+            //20210902密
+            Class1 TKID = new Class1();//用new 建立類別實體
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+
+            //資料庫使用者密碼解密
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            String connectionString;
+            sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+            StringBuilder queryString = new StringBuilder();
+
+            queryString.AppendFormat(@"   
+                                       --INSERT PURTD
+
+                                        INSERT INTO [TK].dbo.PURTD
+                                        (
+                                        COMPANY,CREATOR,USR_GROUP,CREATE_DATE,FLAG,CREATE_TIME,MODI_TIME,TRANS_TYPE,TRANS_NAME,DataGroup
+                                        ,TD001
+                                        ,TD002
+                                        ,TD003
+                                        ,TD004
+                                        ,TD005
+                                        ,TD006
+                                        ,TD007
+                                        ,TD008
+                                        ,TD009
+                                        ,TD010
+                                        ,TD011
+                                        ,TD012
+                                        ,TD014
+                                        ,TD015
+                                        ,TD016
+                                        ,TD017
+                                        ,TD018
+                                        ,TD019
+                                        ,TD020
+                                        ,TD022
+                                        ,TD025
+                                        )
+
+                                        SELECT 
+                                        COMPANY,CREATOR,USR_GROUP,CREATE_DATE,FLAG,CREATE_TIME,MODI_TIME,TRANS_TYPE,TRANS_NAME,DataGroup
+                                        ,TF001
+                                        ,TF002
+                                        ,TF104
+                                        ,TF005
+                                        ,TF006
+                                        ,TF007
+                                        ,TF008
+                                        ,TF009
+                                        ,TF010
+                                        ,TF011
+                                        ,TF012
+                                        ,TF013
+                                        ,TF030
+                                        ,TF015
+                                        ,'N'
+                                        ,TF022
+                                        ,'Y'
+                                        ,TF018
+                                        ,TF019
+                                        ,TF020
+                                        ,TF021
+                                        FROM [TK].dbo.PURTF
+                                        WHERE TF001=@TF001 AND TF002=@TF002 AND TF003=@TF003
+                                        AND TF001+TF002+TF104 NOT IN (SELECT TD001+TD002+TD003  FROM [TK].dbo.PURTD WHERE TD001=@TD001 AND TD002=@TD002)
+
+                                        --UPDATE PURTD
+
+                                        UPDATE [TK].dbo.PURTD
+                                        SET 
+                                        TD004=TF005
+                                        ,TD005=TF006
+                                        ,TD006=TF007
+                                        ,TD007=TF008
+                                        ,TD008=TF009
+                                        ,TD009=TF010
+                                        ,TD010=TF011
+                                        ,TD011=TF012
+                                        ,TD012=TF013
+                                        ,TD014=TF030
+                                        ,TD015=TF015
+                                        ,TD017=TF022
+                                        ,TD019=TF018
+                                        ,TD020=TF019
+                                        ,TD022=TF020
+                                        ,TD025=TF021
+                                        FROM [TK].dbo.PURTF
+                                        WHERE TD001=@TD001 AND TD002=@TD002 AND TD003=TF104
+                                        AND TF001=@TF001 AND TF002=@TF002 AND TF003=@TF003
+
+
+                                        --UPDATE PURTC
+
+                                        UPDATE [TK].dbo.PURTC
+                                        SET 
+                                        TC004=TE005
+                                        ,TC005=TE007
+                                        ,TC006=TE008
+                                        ,TC007=TE009
+                                        ,TC008=TE010
+                                        ,TC015=TE013
+                                        ,TC016=TE014
+                                        ,TC017=TE015
+                                        ,TC018=TE018
+                                        ,TC021=TE019
+                                        ,TC022=TE020
+                                        ,TC026=TE022
+                                        ,TC027=TE023
+                                        ,TC028=TE024
+                                        ,TC009=TE027
+                                        ,TC035=TE029
+                                        ,TC011=TE037
+                                        ,TC047=TE039
+                                        ,TC048=TE040
+                                        ,TC050=TE041
+                                        ,TC036=TE043
+                                        ,TC037=TE045
+                                        ,TC038=TE046
+                                        ,TC039=TE047
+                                        ,TC040=TE048
+                                        FROM [TK].dbo.PURTE
+                                        WHERE TC001=@TC001 AND TC002=@TC002
+                                        AND TE001=@TE001 AND TE002=@TE002 AND TE003=@TE003
+
+                                        --更新PURTC的未稅、稅額、總金額、數量
+                                        UPDATE [TK].dbo.PURTC
+                                        SET TC019=(CASE WHEN TC018='1' THEN (SELECT ISNULL(ISNULL(ROUND(SUM(TD011)/(1+TC026),0),0),0) FROM [TK].dbo.PURTD WHERE TD001+TD002=TC001+TC002) 
+                                                                            ELSE CASE WHEN TC018='2' THEN (SELECT ISNULL(SUM(TD011),0) FROM [TK].dbo.PURTD WHERE TD001+TD002=TC001+TC002) 
+                                                                            ELSE CASE WHEN TC018='3' THEN (SELECT ISNULL(SUM(TD011),0) FROM [TK].dbo.PURTD WHERE TD001+TD002=TC001+TC002) 
+                                                                            ELSE CASE WHEN TC018='4' THEN (SELECT ISNULL(SUM(TD011),0) FROM [TK].dbo.PURTD WHERE TD001+TD002=TC001+TC002) 
+                                                                            ELSE CASE WHEN TC018='9' THEN (SELECT ISNULL(SUM(TD011),0) FROM [TK].dbo.PURTD WHERE TD001+TD002=TC001+TC002)  
+                                                                            END
+                                                                            END
+                                                                            END 
+                                                                            END
+                                                                            END)
+                                        ,TC020=(CASE WHEN TC018='1' THEN (SELECT (ISNULL(SUM(TD011),0)-ISNULL(ROUND(SUM(TD011)/(1+TC026),0),0)) FROM [TK].dbo.PURTD WHERE TD001+TD002=TC001+TC002) 
+                                                                            ELSE CASE WHEN TC018='2' THEN (SELECT ISNULL(ROUND(SUM(TD011)*TC026,0),0) FROM [TK].dbo.PURTD WHERE TD001+TD002=TC001+TC002) 
+                                                                            ELSE CASE WHEN TC018='3' THEN 0 
+                                                                            ELSE CASE WHEN TC018='4' THEN 0
+                                                                            ELSE CASE WHEN TC018='9' THEN 0 
+                                                                            END
+                                                                            END
+                                                                            END 
+                                                                            END
+                                                                            END)
+                                        ,TC023=(SELECT ISNULL(SUM(TD008),0) FROM [TK].dbo.PURTD WHERE TD001=TC001 AND TD002=TC002)
+                                        WHERE TC001=@TC001 AND TC002=@TC002
+
+                                        --如果變更單整理指定結案，原PURTC也指定結案
+
+                                        UPDATE [TK].dbo.PURTD
+                                        SET TD016='y'
+                                        FROM [TK].dbo.PURTE
+                                        WHERE TD001=@TD001 AND TD002=@TD002
+                                        AND TE012='Y'                                    
+                                        AND TE001=@TE001 AND TE002=@TE002 AND TE003=@TE003
+
+                                        --如果變更單單身指定結案，原PURTD也指定結案
+                                        UPDATE [TK].dbo.PURTD
+                                        SET TD016='y'
+                                        FROM [TK].dbo.PURTF
+                                        WHERE   TD001=@TD001 AND TD002=@TD002
+                                        AND TF001=TD001 AND TF002=TD002 AND TF104=TD003
+                                        AND TF014='Y'                                       
+                                        AND TF001=@TF001 AND TF002=@TF002 AND TF003=@TF003
+
+                                        --更新PURTE
+                                        UPDATE [TK].dbo.PURTE
+                                        SET TE017='Y'
+                                        ,UDF02=@UDF02
+                                        WHERE TE001=@TE001 AND TE002=@TE002 AND TE003=@TE003
+
+                                        --更新PURTF
+                                        UPDATE [TK].dbo.PURTF
+                                        SET TF016='Y'
+                                        WHERE TF001=@TF001 AND TF002=@TF002 AND TF003=@TF003
+
+                                        --更新PURTC
+                                        UPDATE [TK].dbo.PURTC
+                                        SET UDF03=@UDF03
+                                        WHERE TC001=@TC001 AND TC002=@TC002
+                                      
+
+                                        ");
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(sqlConn.ConnectionString))
+                {
+
+                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+                    command.Parameters.Add("@TC001", SqlDbType.NVarChar).Value = TC001;
+                    command.Parameters.Add("@TC002", SqlDbType.NVarChar).Value = TC002;
+                    command.Parameters.Add("@TD001", SqlDbType.NVarChar).Value = TD001;
+                    command.Parameters.Add("@TD002", SqlDbType.NVarChar).Value = TD002;
+                    command.Parameters.Add("@TE001", SqlDbType.NVarChar).Value = TE001;
+                    command.Parameters.Add("@TE002", SqlDbType.NVarChar).Value = TE002;
+                    command.Parameters.Add("@TE003", SqlDbType.NVarChar).Value = TE003;
+                    command.Parameters.Add("@TF001", SqlDbType.NVarChar).Value = TF001;
+                    command.Parameters.Add("@TF002", SqlDbType.NVarChar).Value = TF002;
+                    command.Parameters.Add("@TF003", SqlDbType.NVarChar).Value = TF003;
+                    command.Parameters.Add("@UDF02", SqlDbType.NVarChar).Value = FORMID;
+                    command.Parameters.Add("@UDF03", SqlDbType.NVarChar).Value = FORMID;
+
+                    command.Connection.Open();
+
+                    int count = command.ExecuteNonQuery();
+
+                    connection.Close();
+                    connection.Dispose();
+
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
+        }
+
         #endregion
 
-        #region BUTTON
+            #region BUTTON
         private void button15_Click(object sender, EventArgs e)
         {
             //DY採購單>轉入UOF簽核
@@ -2445,6 +3035,23 @@ namespace TKSCHEDULEUOFDY
         {
             //DY採購變更單>轉入UOF簽核
             NEWPURTEPURTF();
+
+            MessageBox.Show("OK");
+        }
+        private void button101_Click(object sender, EventArgs e)
+        {
+            //ERP-PURTCPURTD採購單簽核
+            //TKUOF.TRIGGER.PURTCPURTD.EndFormTrigger
+            UPDATE_PURTC_PURTD();
+
+            MessageBox.Show("OK");
+        }
+
+        private void button103_Click(object sender, EventArgs e)
+        {
+            //ERP-PURTEPURTF採購變更單簽核
+            //TKUOF.TRIGGER.PURTEPURTF.EndFormTrigger
+            UPDATE_PURTE_PURTF();
 
             MessageBox.Show("OK");
         }
