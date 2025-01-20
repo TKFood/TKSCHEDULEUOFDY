@@ -2504,7 +2504,7 @@ namespace TKSCHEDULEUOFDY
                                         FROM [UOF].[dbo].TB_WKF_TASK
                                         LEFT JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
                                         LEFT JOIN [UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
-                                        WHERE[FORM_NAME] = 'PUR40.採購單'
+                                        WHERE[FORM_NAME] = 'PUR40.採購單-大潁'
                                         AND TASK_STATUS = '2'
                                         AND TASK_RESULT = '0'
 
@@ -2709,7 +2709,7 @@ namespace TKSCHEDULEUOFDY
                                         FROM[UOF].[dbo].TB_WKF_TASK
                                         LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
                                         LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
-                                        WHERE[FORM_NAME] = 'PUR50.採購變更單'
+                                        WHERE[FORM_NAME] = 'PUR50.採購變更單-大潁'
                                         AND TASK_STATUS = '2'
                                         AND TASK_RESULT = '0'
 
