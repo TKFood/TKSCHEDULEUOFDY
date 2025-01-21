@@ -51,6 +51,37 @@ namespace TKSCHEDULEUOFDY
 
             }
             catch { }
+
+            try
+            {
+                //ERP-PURTCPURTD採購單簽核
+                //TKUOF.TRIGGER.PURTCPURTD.EndFormTrigger
+                UPDATE_PURTC_PURTD();
+            }
+            catch { }
+
+            try
+            {
+                //ERP-PURTEPURTF採購變更單簽核
+                //TKUOF.TRIGGER.PURTEPURTF.EndFormTrigger
+                UPDATE_PURTE_PURTF();
+            }
+            catch { }
+
+            try
+            {
+                //DY採購單>轉入UOF簽核
+                NEWPURTCPURTD();
+            }
+            catch { }
+
+            try
+            {
+                //DY採購變更單>轉入UOF簽核
+                NEWPURTEPURTF();
+            }
+            catch { }
+
         }
 
 
